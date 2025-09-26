@@ -5,9 +5,10 @@ const apperClient = new ApperClient({
   apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
 });
 
+// Table name for teachers
 const TABLE_NAME = 'teachers_c';
 
-// Helper function to add realistic delays
+// Helper function for realistic delays
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const teachersService = {
