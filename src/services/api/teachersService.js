@@ -39,8 +39,8 @@ export const teachersService = {
       
       return response.data || [];
     } catch (error) {
-      console.error('Error fetching teachers:', error?.response?.data?.message || error.message);
-      throw error;
+console.error('Error fetching teachers:', error?.response?.data?.message || error.message);
+      return [];
     }
   },
 
@@ -70,8 +70,8 @@ export const teachersService = {
       
       return response.data;
     } catch (error) {
-      console.error(`Error fetching teacher ${id}:`, error?.response?.data?.message || error.message);
-      throw error;
+console.error(`Error fetching teacher ${id}:`, error?.response?.data?.message || error.message);
+      return null;
     }
   },
 
@@ -118,8 +118,8 @@ export const teachersService = {
       
       return response.data;
     } catch (error) {
-      console.error('Error creating teacher:', error?.response?.data?.message || error.message);
-      throw error;
+console.error('Error creating teacher:', error?.response?.data?.message || error.message);
+      return null;
     }
   },
 
@@ -167,8 +167,8 @@ export const teachersService = {
       
       return response.data;
     } catch (error) {
-      console.error('Error updating teacher:', error?.response?.data?.message || error.message);
-      throw error;
+console.error('Error updating teacher:', error?.response?.data?.message || error.message);
+      return null;
     }
   },
 
@@ -204,8 +204,8 @@ export const teachersService = {
       
       return true;
     } catch (error) {
-      console.error('Error deleting teacher:', error?.response?.data?.message || error.message);
-      throw error;
+console.error('Error deleting teacher:', error?.response?.data?.message || error.message);
+      return false;
     }
   }
 };
