@@ -1,212 +1,220 @@
+// Initialize ApperClient with Project ID and Public Key
 const { ApperClient } = window.ApperSDK;
-
 const apperClient = new ApperClient({
   apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
   apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
 });
 
-// Table name for teachers
-const TABLE_NAME = 'teachers_c';
+const tableName = 'teachers_c';
 
-// Helper function for realistic delays
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// Helper function to simulate realistic delays
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-export const teachersService = {
-  async getAll() {
-    try {
-      await delay(300);
-      
-      const params = {
-        fields: [
-          { "field": { "Name": "Id" } },
-          { "field": { "Name": "name_c" } },
-          { "field": { "Name": "email_c" } },
-          { "field": { "Name": "department_c" } },
-          { "field": { "Name": "hire_date_c" } },
-          { "field": { "Name": "Name" } },
-          { "field": { "Name": "Tags" } },
-          { "field": { "Name": "CreatedOn" } },
-          { "field": { "Name": "ModifiedOn" } }
-        ],
-        orderBy: [{ "fieldName": "name_c", "sorttype": "ASC" }],
-        pagingInfo: { "limit": 100, "offset": 0 }
-      };
-
-      const response = await apperClient.fetchRecords(TABLE_NAME, params);
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch teachers');
-      }
-      
-      return response.data || [];
-    } catch (error) {
-console.error('Error fetching teachers:', error?.response?.data?.message || error.message);
+// Get all teachers from database
+export async function getAllTeachers() {
+  try {
+    await delay(300);
+    
+    const params = {
+      fields: [
+        {"field": {"Name": "Id"}},
+        {"field": {"Name": "Name"}},
+        {"field": {"Name": "Email"}},
+        {"field": {"Name": "Phone"}},
+        {"field": {"Name": "Department"}},
+        {"field": {"Name": "HireDate"}},
+        {"field": {"Name": "Salary"}},
+        {"field": {"Name": "Status"}},
+        {"field": {"Name": "Specialization"}}
+      ],
+      orderBy: [{"fieldName": "Id", "sorttype": "DESC"}],
+      pagingInfo: {"limit": 100, "offset": 0}
+    };
+    
+    const response = await apperClient.fetchRecords(tableName, params);
+    
+    if (!response.success) {
+      console.error('Error fetching teachers:', response.message);
       return [];
     }
-  },
+    
+    return response.data || [];
+    
+  } catch (error) {
+    console.error('Error fetching teachers:', error?.response?.data?.message || error.message);
+    return [];
+  }
+}
 
-  async getById(id) {
-    try {
-      await delay(200);
-      
-      const params = {
-        fields: [
-          { "field": { "Name": "Id" } },
-          { "field": { "Name": "name_c" } },
-          { "field": { "Name": "email_c" } },
-          { "field": { "Name": "department_c" } },
-          { "field": { "Name": "hire_date_c" } },
-          { "field": { "Name": "Name" } },
-          { "field": { "Name": "Tags" } },
-          { "field": { "Name": "CreatedOn" } },
-          { "field": { "Name": "ModifiedOn" } }
-        ]
-      };
-
-      const response = await apperClient.getRecordById(TABLE_NAME, id, params);
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch teacher');
-      }
-      
-      return response.data;
-    } catch (error) {
-console.error(`Error fetching teacher ${id}:`, error?.response?.data?.message || error.message);
+// Get teacher by ID from database
+export async function getTeacherById(id) {
+  try {
+    await delay(200);
+    
+    const params = {
+      fields: [
+        {"field": {"Name": "Id"}},
+        {"field": {"Name": "Name"}},
+        {"field": {"Name": "Email"}},
+        {"field": {"Name": "Phone"}},
+        {"field": {"Name": "Department"}},
+        {"field": {"Name": "HireDate"}},
+        {"field": {"Name": "Salary"}},
+        {"field": {"Name": "Status"}},
+        {"field": {"Name": "Specialization"}}
+      ]
+    };
+    
+    const response = await apperClient.getRecordById(tableName, parseInt(id), params);
+    
+    if (!response.success) {
+      console.error(`Error fetching teacher ${id}:`, response.message);
       return null;
     }
-  },
+    
+    return response.data;
+    
+  } catch (error) {
+    console.error(`Error fetching teacher ${id}:`, error?.response?.data?.message || error.message);
+    return null;
+  }
+}
 
-  async create(teacherData) {
-    try {
-      await delay(400);
-      
-      // Only include Updateable fields for create operation
-      const params = {
-        records: [{
-          name_c: teacherData.name_c || '',
-          email_c: teacherData.email_c || '',
-          department_c: teacherData.department_c || '',
-          hire_date_c: teacherData.hire_date_c || ''
-        }]
-      };
-
-      const response = await apperClient.createRecord(TABLE_NAME, params);
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to create teacher');
-      }
-
-      if (response.results) {
-        const successful = response.results.filter(r => r.success);
-        const failed = response.results.filter(r => !r.success);
-        
-        if (failed.length > 0) {
-          console.error(`Failed to create ${failed.length} teachers:`, failed);
-          failed.forEach(record => {
-            if (record.errors) {
-              record.errors.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
-              });
-            }
-            if (record.message) {
-              throw new Error(record.message);
-            }
-          });
-        }
-        
-        return successful.length > 0 ? successful[0].data : null;
-      }
-      
-      return response.data;
-    } catch (error) {
-console.error('Error creating teacher:', error?.response?.data?.message || error.message);
+// Create new teacher in database
+export async function createTeacher(teacherData) {
+  try {
+    await delay(400);
+    
+    // Only include Updateable fields based on database schema
+    const params = {
+      records: [{
+        Name: teacherData.Name,
+        Email: teacherData.Email,
+        Phone: teacherData.Phone,
+        Department: teacherData.Department,
+        HireDate: teacherData.HireDate,
+        Salary: parseFloat(teacherData.Salary),
+        Status: teacherData.Status,
+        Specialization: teacherData.Specialization
+      }]
+    };
+    
+    const response = await apperClient.createRecord(tableName, params);
+    
+    if (!response.success) {
+      console.error('Error creating teacher:', response.message);
       return null;
     }
-  },
-
-  async update(id, teacherData) {
-    try {
-      await delay(350);
+    
+    if (response.results) {
+      const successful = response.results.filter(r => r.success);
+      const failed = response.results.filter(r => !r.success);
       
-      // Only include Updateable fields for update operation
-      const params = {
-        records: [{
-          Id: parseInt(id),
-          name_c: teacherData.name_c || '',
-          email_c: teacherData.email_c || '',
-          department_c: teacherData.department_c || '',
-          hire_date_c: teacherData.hire_date_c || ''
-        }]
-      };
-
-      const response = await apperClient.updateRecord(TABLE_NAME, params);
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to update teacher');
-      }
-
-      if (response.results) {
-        const successful = response.results.filter(r => r.success);
-        const failed = response.results.filter(r => !r.success);
-        
-        if (failed.length > 0) {
-          console.error(`Failed to update ${failed.length} teachers:`, failed);
-          failed.forEach(record => {
-            if (record.errors) {
-              record.errors.forEach(error => {
-                throw new Error(`${error.fieldLabel}: ${error.message}`);
-              });
-            }
-            if (record.message) {
-              throw new Error(record.message);
-            }
-          });
-        }
-        
-        return successful.length > 0 ? successful[0].data : null;
+      if (failed.length > 0) {
+        console.error(`Failed to create teacher:`, failed);
+        return null;
       }
       
-      return response.data;
-    } catch (error) {
-console.error('Error updating teacher:', error?.response?.data?.message || error.message);
+      return successful.length > 0 ? successful[0].data : null;
+    }
+    
+    return response.data;
+    
+  } catch (error) {
+    console.error('Error creating teacher:', error?.response?.data?.message || error.message);
+    return null;
+  }
+}
+
+// Update teacher in database
+export async function updateTeacher(id, teacherData) {
+  try {
+    await delay(400);
+    
+    // Only include Updateable fields based on database schema
+    const params = {
+      records: [{
+        Id: parseInt(id),
+        Name: teacherData.Name,
+        Email: teacherData.Email,
+        Phone: teacherData.Phone,
+        Department: teacherData.Department,
+        HireDate: teacherData.HireDate,
+        Salary: parseFloat(teacherData.Salary),
+        Status: teacherData.Status,
+        Specialization: teacherData.Specialization
+      }]
+    };
+    
+    const response = await apperClient.updateRecord(tableName, params);
+    
+    if (!response.success) {
+      console.error('Error updating teacher:', response.message);
       return null;
     }
-  },
-
-  async delete(id) {
-    try {
-      await delay(300);
+    
+    if (response.results) {
+      const successful = response.results.filter(r => r.success);
+      const failed = response.results.filter(r => !r.success);
       
-      const params = {
-        RecordIds: [parseInt(id)]
-      };
-
-      const response = await apperClient.deleteRecord(TABLE_NAME, params);
-      
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete teacher');
-      }
-
-      if (response.results) {
-        const successful = response.results.filter(r => r.success);
-        const failed = response.results.filter(r => !r.success);
-        
-        if (failed.length > 0) {
-          console.error(`Failed to delete ${failed.length} teachers:`, failed);
-          failed.forEach(record => {
-            if (record.message) {
-              throw new Error(record.message);
-            }
-          });
-        }
-        
-        return successful.length > 0;
+      if (failed.length > 0) {
+        console.error(`Failed to update teacher:`, failed);
+        return null;
       }
       
-      return true;
-    } catch (error) {
-console.error('Error deleting teacher:', error?.response?.data?.message || error.message);
+      return successful.length > 0 ? successful[0].data : null;
+    }
+    
+    return response.data;
+    
+  } catch (error) {
+    console.error('Error updating teacher:', error?.response?.data?.message || error.message);
+    return null;
+  }
+}
+
+// Delete teacher from database
+export async function deleteTeacher(id) {
+  try {
+    await delay(300);
+    
+    const params = {
+      RecordIds: [parseInt(id)]
+    };
+    
+    const response = await apperClient.deleteRecord(tableName, params);
+    
+    if (!response.success) {
+      console.error('Error deleting teacher:', response.message);
       return false;
     }
+    
+    if (response.results) {
+      const successful = response.results.filter(r => r.success);
+      const failed = response.results.filter(r => !r.success);
+      
+      if (failed.length > 0) {
+        console.error(`Failed to delete teacher:`, failed);
+        return false;
+      }
+      
+      return successful.length > 0;
+    }
+    
+    return true;
+    
+  } catch (error) {
+    console.error('Error deleting teacher:', error?.response?.data?.message || error.message);
+    return false;
   }
+}
+
+export const teachersService = {
+  getAllTeachers,
+  getTeacherById,
+  createTeacher,
+  updateTeacher,
+  deleteTeacher
 };

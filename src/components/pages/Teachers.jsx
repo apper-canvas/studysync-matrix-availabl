@@ -58,7 +58,7 @@ const Teachers = () => {
       const data = await teachersService.getAll();
       setTeachers(data);
     } catch (err) {
-      setError(err.message);
+setError(err?.response?.data?.message || err.message || 'Failed to load teachers');
       toast.error('Failed to load teachers');
     } finally {
       setLoading(false);
@@ -101,7 +101,8 @@ const Teachers = () => {
         setIsAddModalOpen(false);
       }
       resetForm();
-    } catch (err) {
+} catch (err) {
+      console.error('Teacher form submission error:', err?.response?.data?.message || err.message);
       toast.error(editingTeacher ? 'Failed to update teacher' : 'Failed to add teacher');
     }
   };
@@ -123,7 +124,8 @@ const Teachers = () => {
         await teachersService.delete(teacher.Id);
         setTeachers(prev => prev.filter(t => t.Id !== teacher.Id));
         toast.success('Teacher deleted successfully');
-      } catch (err) {
+} catch (err) {
+        console.error('Teacher deletion error:', err?.response?.data?.message || err.message);
         toast.error('Failed to delete teacher');
       }
     }
