@@ -7,6 +7,7 @@ import Layout from "@/components/organisms/Layout";
 import Dashboard from "@/components/pages/Dashboard";
 import Courses from "@/components/pages/Courses";
 import Students from "@/components/pages/Students";
+import Teachers from "@/components/pages/Teachers";
 import Departments from "@/components/pages/Departments";
 import Assignments from "@/components/pages/Assignments";
 import GPACalculator from "@/components/pages/GPACalculator";
@@ -134,6 +135,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/students" element={<Students />} />
+<Route path="/teachers" element={<Teachers />} />
               <Route path="/departments" element={<Departments />} />
               <Route path="/assignments" element={<Assignments />} />
               <Route path="/gpa" element={<GPACalculator />} />
