@@ -207,6 +207,37 @@ const studentResult = {
           } catch (stripeError) {
             console.info(`apper_info: An error was received in this function: ${import.meta.env.VITE_CREATE_STRIPE_CUSTOMER}. The error is: ${stripeError.message}`);
             toast.warning('Student created successfully, but Stripe customer setup failed');
+}
+
+          // Create corresponding CompanyHub contact
+          try {
+            const { ApperClient } = window.ApperSDK;
+            const apperClient = new ApperClient({
+              apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+              apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+            });
+
+            const companyhubResult = await apperClient.functions.invoke(import.meta.env.VITE_CREATE_COMPANYHUB_CONTACT, {
+              body: JSON.stringify({
+                name: created.name_c,
+                email: created.email_c,
+                phone: created.phone_c
+              }),
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const companyhubData = await companyhubResult.json();
+            if (companyhubData.success) {
+              toast.success('Student created and CompanyHub contact added successfully');
+            } else {
+              console.info(`apper_info: An error was received in this function: ${import.meta.env.VITE_CREATE_COMPANYHUB_CONTACT}. The response body is: ${JSON.stringify(companyhubData)}.`);
+              toast.warning('Student created successfully, but CompanyHub contact creation failed');
+            }
+          } catch (companyhubError) {
+            console.info(`apper_info: An error was received in this function: ${import.meta.env.VITE_CREATE_COMPANYHUB_CONTACT}. The error is: ${companyhubError.message}`);
+            toast.warning('Student created successfully, but CompanyHub contact creation failed');
           }
 
           return studentResult;
