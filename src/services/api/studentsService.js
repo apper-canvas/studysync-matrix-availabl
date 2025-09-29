@@ -177,6 +177,36 @@ const studentResult = {
               console.info(`apper_info: An error was received in this function: ${import.meta.env.VITE_SEND_CHEMISTRY_PASS_EMAIL}. The error is: ${emailError.message}`);
               toast.warning('Student created successfully, but email notification failed');
             }
+}
+
+          // Create corresponding Stripe customer
+          try {
+            const { ApperClient } = window.ApperSDK;
+            const apperClient = new ApperClient({
+              apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+              apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+            });
+
+            const stripeResult = await apperClient.functions.invoke(import.meta.env.VITE_CREATE_STRIPE_CUSTOMER, {
+              body: JSON.stringify({
+                name: created.name_c,
+                email: created.email_c
+              }),
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const stripeData = await stripeResult.json();
+            if (stripeData.success) {
+              toast.success('Student created and Stripe customer account set up successfully');
+            } else {
+              console.info(`apper_info: An error was received in this function: ${import.meta.env.VITE_CREATE_STRIPE_CUSTOMER}. The response body is: ${JSON.stringify(stripeData)}.`);
+              toast.warning('Student created successfully, but Stripe customer setup failed');
+            }
+          } catch (stripeError) {
+            console.info(`apper_info: An error was received in this function: ${import.meta.env.VITE_CREATE_STRIPE_CUSTOMER}. The error is: ${stripeError.message}`);
+            toast.warning('Student created successfully, but Stripe customer setup failed');
           }
 
           return studentResult;
